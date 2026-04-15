@@ -1,0 +1,1495 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>内容营销中心 · AI应用灵感地图</title>
+<!-- 预连接学城CDN，减少首图 DNS+TCP 握手延迟 -->
+<link rel="preconnect" href="https://km.sankuai.com" crossorigin>
+<link rel="dns-prefetch" href="https://km.sankuai.com">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#080812;
+  --surface:rgba(255,255,255,0.04);
+  --border:rgba(255,255,255,0.08);
+  --text:#e2e8f0;
+  --muted:#64748b;
+  --c1:#6366f1;--c1l:rgba(99,102,241,0.15);--c1t:#a5b4fc;
+  --c2:#f59e0b;--c2l:rgba(245,158,11,0.15);--c2t:#fcd34d;
+  --c3:#10b981;--c3l:rgba(16,185,129,0.15);--c3t:#6ee7b7;
+  --c4:#ef4444;--c4l:rgba(239,68,68,0.15);--c4t:#fca5a5;
+  --c5:#8b5cf6;--c5l:rgba(139,92,246,0.15);--c5t:#c4b5fd;
+  --c6:#06b6d4;--c6l:rgba(6,182,212,0.15);--c6t:#67e8f9;
+  --c7:#f97316;--c7l:rgba(249,115,22,0.15);--c7t:#fdba74;
+  --c8:#ec4899;--c8l:rgba(236,72,153,0.15);--c8t:#f9a8d4;
+}
+html{scroll-behavior:smooth}
+body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);min-height:100vh;color:var(--text);overflow-x:hidden}
+
+/* ── 背景粒子 ── */
+#canvas{position:fixed;inset:0;pointer-events:none;z-index:0}
+#glow{position:fixed;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(99,102,241,0.05) 0%,transparent 70%);pointer-events:none;z-index:1;transform:translate(-50%,-50%);transition:left .1s,top .1s}
+
+/* ── 布局 ── */
+.wrap{position:relative;z-index:2;max-width:1440px;margin:0 auto;padding:48px 28px 100px}
+
+/* ── Hero ── */
+.hero{text-align:center;margin-bottom:52px}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(99,102,241,0.12);border:1px solid rgba(99,102,241,0.35);color:#a5b4fc;padding:5px 18px;border-radius:20px;font-size:11px;letter-spacing:2px;margin-bottom:18px;text-transform:uppercase}
+.hero h1{font-size:clamp(28px,4vw,44px);font-weight:900;background:linear-gradient(135deg,#e2e8f0 0%,#a5b4fc 45%,#67e8f9 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-1px;margin-bottom:10px}
+.hero-sub{font-size:13px;color:var(--muted);margin-bottom:24px}
+.stats{display:flex;justify-content:center;gap:40px;flex-wrap:wrap}
+.stat{text-align:center}
+.stat-n{font-size:32px;font-weight:900;background:linear-gradient(135deg,#a5b4fc,#67e8f9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1}
+.stat-l{font-size:11px;color:#475569;margin-top:4px}
+
+/* ── 筛选栏 ── */
+.filters{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:48px;position:sticky;top:12px;z-index:100}
+.f-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:24px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:rgba(8,8,18,0.85);backdrop-filter:blur(12px);color:#64748b;transition:all .2s;user-select:none;white-space:nowrap}
+.f-btn:hover{color:#fff;transform:translateY(-1px)}
+.f-btn.active{color:#fff}
+.f-btn[data-f="all"].active{background:rgba(99,102,241,0.2);border-color:var(--c1);color:var(--c1t)}
+.f-btn[data-f="auto"].active{background:var(--c1l);border-color:var(--c1);color:var(--c1t)}
+.f-btn[data-f="content"].active{background:var(--c2l);border-color:var(--c2);color:var(--c2t)}
+.f-btn[data-f="data"].active{background:var(--c3l);border-color:var(--c3);color:var(--c3t)}
+.f-btn[data-f="review"].active{background:var(--c4l);border-color:var(--c4);color:var(--c4t)}
+.f-btn[data-f="kol"].active{background:var(--c5l);border-color:var(--c5);color:var(--c5t)}
+.f-btn[data-f="monitor"].active{background:var(--c6l);border-color:var(--c6);color:var(--c6t)}
+.f-btn[data-f="vendor"].active{background:var(--c7l);border-color:var(--c7);color:var(--c7t)}
+.f-btn[data-f="life"].active{background:var(--c8l);border-color:var(--c8);color:var(--c8t)}
+
+/* ── 分类区块 ── */
+.section{margin-bottom:56px;opacity:1;transition:opacity .3s}
+.section.hidden{display:none}
+.sec-header{display:flex;align-items:center;gap:14px;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--border)}
+.sec-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.sec-info{flex:1}
+.sec-title{font-size:18px;font-weight:800;margin-bottom:2px}
+.sec-desc{font-size:12px;color:var(--muted)}
+.sec-count{font-size:11px;font-weight:700;padding:3px 10px;border-radius:12px;flex-shrink:0}
+
+[data-sec="auto"] .sec-icon{background:var(--c1l)}
+[data-sec="auto"] .sec-title{color:var(--c1t)}
+[data-sec="auto"] .sec-count{background:var(--c1l);color:var(--c1t)}
+[data-sec="content"] .sec-icon{background:var(--c2l)}
+[data-sec="content"] .sec-title{color:var(--c2t)}
+[data-sec="content"] .sec-count{background:var(--c2l);color:var(--c2t)}
+[data-sec="data"] .sec-icon{background:var(--c3l)}
+[data-sec="data"] .sec-title{color:var(--c3t)}
+[data-sec="data"] .sec-count{background:var(--c3l);color:var(--c3t)}
+[data-sec="review"] .sec-icon{background:var(--c4l)}
+[data-sec="review"] .sec-title{color:var(--c4t)}
+[data-sec="review"] .sec-count{background:var(--c4l);color:var(--c4t)}
+[data-sec="kol"] .sec-icon{background:var(--c5l)}
+[data-sec="kol"] .sec-title{color:var(--c5t)}
+[data-sec="kol"] .sec-count{background:var(--c5l);color:var(--c5t)}
+[data-sec="monitor"] .sec-icon{background:var(--c6l)}
+[data-sec="monitor"] .sec-title{color:var(--c6t)}
+[data-sec="monitor"] .sec-count{background:var(--c6l);color:var(--c6t)}
+[data-sec="vendor"] .sec-icon{background:var(--c7l)}
+[data-sec="vendor"] .sec-title{color:var(--c7t)}
+[data-sec="vendor"] .sec-count{background:var(--c7l);color:var(--c7t)}
+[data-sec="life"] .sec-icon{background:var(--c8l)}
+[data-sec="life"] .sec-title{color:var(--c8t)}
+[data-sec="life"] .sec-count{background:var(--c8l);color:var(--c8t)}
+
+/* ── 卡片网格 ── */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px}
+
+/* ── 卡片 ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px;position:relative;overflow:hidden;transition:transform .3s cubic-bezier(.34,1.56,.64,1),box-shadow .3s,border-color .3s,opacity .4s;cursor:default;animation:fadeUp .5s ease both}
+.card::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at var(--mx,50%) var(--my,50%),rgba(255,255,255,0.05) 0%,transparent 55%);opacity:0;transition:opacity .3s;pointer-events:none}
+.card:hover::before{opacity:1}
+.card:hover{transform:translateY(-5px) scale(1.01)}
+.card::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:16px 16px 0 0}
+
+.card[data-cat="auto"]::after{background:var(--c1)}
+.card[data-cat="content"]::after{background:var(--c2)}
+.card[data-cat="data"]::after{background:var(--c3)}
+.card[data-cat="review"]::after{background:var(--c4)}
+.card[data-cat="kol"]::after{background:var(--c5)}
+.card[data-cat="monitor"]::after{background:var(--c6)}
+.card[data-cat="vendor"]::after{background:var(--c7)}
+.card[data-cat="life"]::after{background:var(--c8)}
+
+.card:hover[data-cat="auto"]{border-color:rgba(99,102,241,.4);box-shadow:0 16px 48px rgba(99,102,241,.18)}
+.card:hover[data-cat="content"]{border-color:rgba(245,158,11,.4);box-shadow:0 16px 48px rgba(245,158,11,.18)}
+.card:hover[data-cat="data"]{border-color:rgba(16,185,129,.4);box-shadow:0 16px 48px rgba(16,185,129,.18)}
+.card:hover[data-cat="review"]{border-color:rgba(239,68,68,.4);box-shadow:0 16px 48px rgba(239,68,68,.18)}
+.card:hover[data-cat="kol"]{border-color:rgba(139,92,246,.4);box-shadow:0 16px 48px rgba(139,92,246,.18)}
+.card:hover[data-cat="monitor"]{border-color:rgba(6,182,212,.4);box-shadow:0 16px 48px rgba(6,182,212,.18)}
+.card:hover[data-cat="vendor"]{border-color:rgba(249,115,22,.4);box-shadow:0 16px 48px rgba(249,115,22,.18)}
+.card:hover[data-cat="life"]{border-color:rgba(236,72,153,.4);box-shadow:0 16px 48px rgba(236,72,153,.18)}
+
+.card-head{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px}
+.card-ico{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.card[data-cat="auto"] .card-ico{background:var(--c1l)}
+.card[data-cat="content"] .card-ico{background:var(--c2l)}
+.card[data-cat="data"] .card-ico{background:var(--c3l)}
+.card[data-cat="review"] .card-ico{background:var(--c4l)}
+.card[data-cat="kol"] .card-ico{background:var(--c5l)}
+.card[data-cat="monitor"] .card-ico{background:var(--c6l)}
+.card[data-cat="vendor"] .card-ico{background:var(--c7l)}
+.card[data-cat="life"] .card-ico{background:var(--c8l)}
+
+.card-meta{flex:1;min-width:0}
+.card-title{font-size:13.5px;font-weight:700;color:var(--text);line-height:1.4;margin-bottom:3px}
+.card-author{font-size:11px;color:var(--muted)}
+.card-date{font-size:10px;color:#334155;background:rgba(255,255,255,0.05);padding:2px 8px;border-radius:10px;flex-shrink:0;align-self:flex-start;white-space:nowrap}
+
+.card-effect{font-size:12px;color:#94a3b8;line-height:1.7;margin-bottom:10px}
+
+.card-tools{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
+.tool{font-size:10px;padding:2px 8px;border-radius:6px;background:rgba(255,255,255,0.06);color:#64748b;border:1px solid rgba(255,255,255,0.06)}
+
+.card-wow{font-size:11px;color:#475569;line-height:1.6;padding-top:9px;border-top:1px solid rgba(255,255,255,0.05);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.wow-lbl{font-weight:700;margin-right:3px}
+
+/* ── 展开/收起 ── */
+.card.collapsed .card-effect{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.expand-btn{display:none;font-size:10px;color:var(--muted);cursor:pointer;margin-top:6px;text-align:right}
+.expand-btn:hover{color:var(--text)}
+
+/* ── 动画 ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── 底部图例 ── */
+.legend{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:60px;padding-top:32px;border-top:1px solid var(--border)}
+.leg-item{display:flex;align-items:center;gap:6px;font-size:11px;color:#475569;padding:5px 12px;border-radius:20px;background:rgba(255,255,255,0.03);border:1px solid var(--border);cursor:pointer;transition:all .2s}
+.leg-item:hover{color:#94a3b8;background:rgba(255,255,255,0.06)}
+.leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+/* ── 获奖标识 ── */
+.award-badge{display:inline-flex;align-items:center;gap:4px;background:linear-gradient(135deg,rgba(251,191,36,0.2),rgba(245,158,11,0.15));border:1px solid rgba(251,191,36,0.5);color:#fbbf24;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;margin-bottom:8px;letter-spacing:.5px;animation:awardPulse 2.5s ease-in-out infinite}
+@keyframes awardPulse{0%,100%{box-shadow:0 0 0 0 rgba(251,191,36,0)}50%{box-shadow:0 0 8px 2px rgba(251,191,36,0.25)}}
+.card.is-award{border-color:rgba(251,191,36,0.3)!important}
+.card.is-award::after{background:linear-gradient(90deg,#f59e0b,#fbbf24,#f59e0b)!important}
+
+/* ── 演示链接按钮 ── */
+.demo-btn{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:8px;font-size:11px;font-weight:600;text-decoration:none;transition:all .2s;margin-top:8px;border:1px solid}
+.demo-btn:hover{transform:translateY(-1px)}
+.card[data-cat="auto"] .demo-btn{background:rgba(99,102,241,0.12);border-color:rgba(99,102,241,0.4);color:#a5b4fc}
+.card[data-cat="auto"] .demo-btn:hover{background:rgba(99,102,241,0.25)}
+.card[data-cat="content"] .demo-btn{background:rgba(245,158,11,0.12);border-color:rgba(245,158,11,0.4);color:#fcd34d}
+.card[data-cat="content"] .demo-btn:hover{background:rgba(245,158,11,0.25)}
+.card[data-cat="data"] .demo-btn{background:rgba(16,185,129,0.12);border-color:rgba(16,185,129,0.4);color:#6ee7b7}
+.card[data-cat="data"] .demo-btn:hover{background:rgba(16,185,129,0.25)}
+.card[data-cat="review"] .demo-btn{background:rgba(239,68,68,0.12);border-color:rgba(239,68,68,0.4);color:#fca5a5}
+.card[data-cat="review"] .demo-btn:hover{background:rgba(239,68,68,0.25)}
+.card[data-cat="kol"] .demo-btn{background:rgba(139,92,246,0.12);border-color:rgba(139,92,246,0.4);color:#c4b5fd}
+.card[data-cat="kol"] .demo-btn:hover{background:rgba(139,92,246,0.25)}
+.card[data-cat="monitor"] .demo-btn{background:rgba(6,182,212,0.12);border-color:rgba(6,182,212,0.4);color:#67e8f9}
+.card[data-cat="monitor"] .demo-btn:hover{background:rgba(6,182,212,0.25)}
+.card[data-cat="vendor"] .demo-btn{background:rgba(249,115,22,0.12);border-color:rgba(249,115,22,0.4);color:#fdba74}
+.card[data-cat="vendor"] .demo-btn:hover{background:rgba(249,115,22,0.25)}
+.card[data-cat="life"] .demo-btn{background:rgba(236,72,153,0.12);border-color:rgba(236,72,153,0.4);color:#f9a8d4}
+.card[data-cat="life"] .demo-btn:hover{background:rgba(236,72,153,0.25)}
+
+/* ── 图片缩略图 ── */
+.card-thumb{width:100%;height:120px;border-radius:10px;overflow:hidden;margin-bottom:10px;position:relative;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06)}
+.card-thumb img{width:100%;height:100%;object-fit:cover;transition:transform .4s ease}
+.card:hover .card-thumb img{transform:scale(1.05)}
+.card-thumb-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:32px;opacity:.3}
+
+/* ── 响应式 ── */
+@media(max-width:640px){
+  .wrap{padding:28px 14px 60px}
+  .hero h1{font-size:26px}
+  .grid{grid-template-columns:1fr}
+  .filters{gap:6px}
+  .f-btn{padding:6px 12px;font-size:11px}
+}
+</style>
+</head>
+<body>
+<div id="glow"></div>
+<canvas id="canvas"></canvas>
+
+<div class="wrap">
+
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-badge">✦ 内部分享沉淀 · 持续更新 ✦</div>
+  <h1>👯‍♀️ 内容营销中心 · AI应用灵感地图</h1>
+  <p class="hero-sub">3月23日 — 4月8日 &nbsp;·&nbsp; 团队 AI 应用分享精华 · 按场景聚合</p>
+  <div class="stats">
+    <div class="stat"><div class="stat-n">52</div><div class="stat-l">分享案例</div></div>
+    <div class="stat"><div class="stat-n">8</div><div class="stat-l">应用场景</div></div>
+    <div class="stat"><div class="stat-n">10</div><div class="stat-l">分享日</div></div>
+    <div class="stat"><div class="stat-n">35+</div><div class="stat-l">位分享人</div></div>
+  </div>
+</div>
+
+<!-- 筛选栏 -->
+<div class="filters">
+  <div class="f-btn active" data-f="all">🌐 全部</div>
+  <div class="f-btn" data-f="auto">⚡ 流程自动化</div>
+  <div class="f-btn" data-f="content">✍️ 内容生产</div>
+  <div class="f-btn" data-f="data">📊 数据分析</div>
+  <div class="f-btn" data-f="review">🔍 内容审核</div>
+  <div class="f-btn" data-f="kol">🌟 达人管理</div>
+  <div class="f-btn" data-f="monitor">📡 日报监测</div>
+  <div class="f-btn" data-f="vendor">🤝 供应商管理</div>
+  <div class="f-btn" data-f="life">🎨 生活创意</div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     ⚡ 流程自动化
+════════════════════════════════════════ -->
+<div class="section" data-sec="auto" id="sec-auto">
+  <div class="sec-header">
+    <div class="sec-icon">⚡</div>
+    <div class="sec-info">
+      <div class="sec-title">流程自动化</div>
+      <div class="sec-desc">用 AI 替代重复操作，把小时级工作压缩到分钟</div>
+    </div>
+    <div class="sec-count">14 个案例</div>
+  </div>
+  <div class="grid">
+
+    <!-- 🏆 获奖：张雨泓 4/1 -->
+    <div class="card is-award" data-cat="auto">
+      <div class="award-badge">🏆 当日获奖</div>
+      <div class="card-head">
+        <div class="card-ico">🪖</div>
+        <div class="card-meta"><div class="card-title">营销 AI 军团 + 1024agent 项目群应用 + Vibecoding 网球场地预定</div><div class="card-author">张雨泓</div></div>
+        <div class="card-date">4/1</div>
+      </div>
+      <div class="card-effect">5 个 AI 小组协作完成行业趋势洞察 + 竞品分析 + KFS 投放策略；在闪购项目群部署 AI 助理，BF 下发自动化，人力效率提升约 +0.3pd</div>
+      <div class="card-tools"><span class="tool">CatDesk</span><span class="tool">1024agent</span><span class="tool">Gemini</span><span class="tool">Claude</span></div>
+      <div class="card-wow"><span class="wow-lbl">🤩</span>1024agent 直接在群里选号，所有人可见，更具权威性</div>
+      <a class="demo-btn" href="https://km.sankuai.com/collabpage/2753629310" target="_blank">📄 查看方案文档</a>
+    </div>
+
+    <!-- 🏆 获奖：李姝婧 4/7 -->
+    <div class="card is-award" data-cat="auto">
+      <div class="award-badge">🏆 当日获奖</div>
+      <div class="card-head">
+        <div class="card-ico">👥</div>
+        <div class="card-meta"><div class="card-title">用 Agent 搭建我的 AI-Team（5 人独立人格 AI 团队）</div><div class="card-author">李姝婧</div></div>
+        <div class="card-date">4/7</div>
+      </div>
+      <div class="card-effect">搭建了 5 个有独立人格、专业分工、持久记忆的 AI 成员，调用时可自动读取个人档案、团队共识与项目快照进入工作状态</div>
+      <div class="card-tools"><span class="tool">CatPaw Desk</span><span class="tool">Github</span></div>
+      <div class="card-wow"><span class="wow-lbl">🤩</span>团队化协作与持久记忆；视觉生成能力仍是下一步补强方向</div>
+      <a class="demo-btn" href="https://moslitt.github.io/ai-team-sharing/" target="_blank">🌐 体验 AI 团队</a>
+    </div>
+
+    <!-- 🏆 获奖：曾子尧 3/23 -->
+    <div class="card is-award" data-cat="auto">
+      <div class="award-badge">🏆 当日获奖</div>
+      <div class="card-head">
+        <div class="card-ico">🏠</div>
+        <div class="card-meta"><div class="card-title">OpenClaw 本地部署 + 热榜报价单</div><div class="card-author">曾子尧</div></div>
+        <div class="card-date">3/23</div>
+      </div>
+      <div class="card-effect">成功本地运行 AI Agent，生成热榜报价单，数据完全不出公司</div>
+      <div class="card-tools"><span class="tool">OpenClaw</span><span class="tool">火山引擎豆包</span></div>
+      <div class="card-wow"><span class="wow-lbl">🔒</span>安全可控，数据不出公司</div>
+      <a class="demo-btn" href="https://km.sankuai.com/collabpage/2751879747" target="_blank">📄 查看报价Skill</a>
+    </div>
+
+    <!-- 🏆 获奖：陈晓龙 3/30 -->
+    <div class="card is-award" data-cat="auto">
+      <div class="award-badge">🏆 当日获奖</div>
+      <div class="card-head">
+        <div class="card-ico">💰</div>
+        <div class="card-meta"><div class="card-title">后结算 PO 下单自动化 SKILL</div><div class="card-author">陈晓龙</div></div>
+        <div class="card-date">3/30</div>
+      </div>
+      <div class="card-effect">自动从已发邮件中找到结算确认邮件，解析 PR 号/供应商/金额/投放日期，一键完成 PO 下单</div>
+      <div class="card-tools"><span class="tool">CatDesk（自制Skill）</span></div>
+      <div class="card-wow"><span class="wow-lbl">🤩</span>直接说"帮我下单"即可触发，还附带了可安装的 Skill 文件</div>
+    </div>
+
+    <!-- 🏆 获奖：贾月秋 4/2 -->
+    <div class="card is-award" data-cat="auto">
+      <div class="award-badge">🏆 当日获奖</div>
+      <div class="card-head">
+        <div class="card-ico">🧠</div>
+        <div class="card-meta"><div class="card-title">毛毛老师外置大脑 Skill + AI 工厂工作流 + 矩阵账号评估体系</div><div class="card-author">贾月秋</div></div>
+        <div class="card-date">4/2</div>
+      </div>
+      <div class="card-effect">把前辈长期输出内容投喂给 AI，封装为思考型 skill；将跑通的工作流程持续封装为不同 skill 并让它们协作；搭建账号评估闭环</div>
+      <div class="card-tools"><span class="tool">CatDesk</span></div>
+      <div class="card-wow"><span class="wow-lbl">🤩</span>把"最佩服的人的思维方式"复制给 AI；不同 skill 各司其职还能互相调用</div>
+      <a class="demo-btn" href="https://km.sankuai.com/collabpage/2754770993" target="_blank">📄 账号评估体系</a>
+    </div>
+
+    <!-- 普通卡片 -->
+    <div class="card" data-cat="auto">
+      <div class="card-head">
+        <div class="card-ico">🤖</div>
+        <div class="card-meta"><div class="card-title">公司内部AI个人助理（会议纪要）</div><div class="card-author">石震</div></div>
+        <div class="card-date">3/23</div>
+      </div>
+      <div class="card-effect">会议纪要二次矫正 + 风险点拆解 + 对话总结，时效提升明显</div>
+      <div class="card-tools"><span class="tool">LongCat-Flash</span></div>
+      <div class="card-wow"><span class="wow-lbl">😅</span>助理会把关键语录原封不动提炼出来，有点 challenging</div>
+    </div>
+
+    <div class="card" data-cat="auto">
+      <div class="card-head">
+        <div class="card-ico">📝</div>
+        <div class="card-meta"><div class="card-title">会议纪要 + 需求分析 AI 助理 & 高效会议记录横评</div><div class="card-author">包亮亮</div></div>
+        <div class="card-date">3/23</div>
+      </div>
+      <div class="card-effect">解决 80%+ 会议记录，直接形成可用文档；更推荐小美听写：有摘要 + 核心议题</div>
+      <div class="card-tools"><span class="tool">LongCat-Flash</span><span class="tool">小美听写</span></div>
+      <div class="card-wow"><span class="wow-lbl">💡</span>kiki 更适合履约场景，小美听写更通用</div>
+      <a class="demo-btn" href="https://km.sankuai.com/collabpage/2733112382" target="_blank">📄 查看产品介绍</a>
+    </div>
+
+    <div class="card" data-cat="auto">
+      <div class="card-head">
+        <div class="card-ico">🔧</div>
+        <div class="card-meta"><div class="card-title">飞书机器人全流程自动化</div><div class="card-author">武雯菲</div></div>
+        <div class="card-date">3/24</div>
+      </div>
+      <div class="card-effect">低代码/无代码全流程自动化：需求→开发→上线，只需写需求和测试，AI 完成开发</div>
+      <div class="card-tools"><span class="tool">飞书AI应用开发智能助手</span></div>
+      <div class="card-wow"><span class="wow-lbl">🤩</span>把全流程自动化了，只需写需求和测试</div>
+    </div>
+
+    <div class="card" data-cat="auto">
+      <div class="card-head">
+        <div class="card-ico">📧</div>
+        <div class="card-meta"><div class="card-title">AI 自动化发送 Social 需求单邮件</div><div class="card-author">蒋世杰</div></div>
+        <div class="card-date">3/25</div>
+      </div>
+      <div class="card-effect">自动抓取表内项目关键信息，批量生成并发送 Social 需求邮件，全流程无需人工干预</div>
+      <div class="card-tools"><span class="tool">CatClaw大象版个人助理</span></div>
+      <div class="card-wow"><span class="wow-lbl">😂</span>训练过程中给杨鑫钰发了 800 封格式不对的测试邮件</div>
+    </div>
+
+    <div class="card" data-cat="auto">
+      <div class="card-head">
+        <div class="card-ico">🗂️</div>
+        <div class="card-meta"><div class="card-title">飞书 OpenClaw 个人项目管理系统</div><div class="card-author">裴娜娜</div></div>
+        <div class="card-date">3/31</div>
+      </div>
+      <div class="card-effect">搭建个人项目全流程精细化管控系统，含工作日记、任务追踪，实现日常工作高效梳理</div>
+      <div class="card-tools"><span class="tool">飞书 OpenClaw</span><span class="tool">妙搭</span></div>
+      <div class="card-wow"><span class="wow-lbl">🤩</span>结合妙搭实现可视化，已上线可体验的网页应用</div>
+      <a class="demo-btn" href="https://ecn17pm48hpm.aiforce.cloud/spark/faas/app_4jtzb8q3k7t8d" target="_blank">🌐 体验网页应用</a>
+    </div>
+
+    <div class="card" data-cat="auto">
+      <div class="card-head">
+        <div class="card-ico">🧾</div>
+        <div class="card-meta"><div class="card-title">AI 结算辅助填写创建采购订单信息</div><div class="card-author">杨旭</div></div>
+        <div class="card-date">4/2</div>
+      </div>
+      <div class="card-effect">单个订单处理时间从 5-8 分钟缩短到 1-2 分钟；让 AI 根据供应商材料和链接自动填写采购系统网页</div>
+      <div class="card-tools"><span class="tool">Tabbit</span></div>
+      <div class="card-wow"><span class="wow-lbl">💬</span>Tabbit 还定位不到本地文件，附件上传仍需手动</div>
+      <a class="demo-btn" href="https://rcnmvvdyzv5j.feishu.cn/wiki/LboDwbLe6iDvSLkZRvzcRXFZnee?from=from_copylink" target="_blank">📄 查看飞书文档</a>
+    </div>
+
+    <div class="card" data-cat="auto">
+      <div class="card-head">
+        <div class="card-ico">🎓</div>
+        <div class="card-meta"><div class="card-title">黑钻校园创作者项目重复性工作全流程整合</div><div class="card-author">李玥珊</div></div>
+        <div class="card-date">4/3</div>
+      </div>
+      <div class="card-effect">整体耗时从 3 小时压缩到 10 分钟，节省约 0.2-0.3 人力，降低出错率；把多个重复环节整合成一个可扩展的网站型工具</div>
+      <div class="card-tools"><span class="tool">CatPaw Desk</span></div>
+      <div class="card-wow"><span class="wow-lbl">🤩</span>核心亮点是把多个重复环节整合成一个可扩展的网站型工具</div>
+    </div>
+
+    <div class="card" data-cat="auto">
+      <div class="card-head">
+        <div class="card-ico">🔗</div>
+        <div class="card-meta"><div class="card-title">个人工作台 + 跨平台工作流（N8N 内容审核闭环）</div><div class="card-author">刘立勋</div></div>
+        <div class="card-date">4/7</div>
+      </div>
+      <div class="card-effect">已跑通内容审核最小闭环，可读取飞书内容并结合资料库、大模型完成审核；优势是稳定、自由度高</div>
+      <div class="card-tools"><span class="tool">N8N</span><span class="tool">Kimi</span><span class="tool">Docker</span></div>
+      <div class="card-wow"><span class="wow-lbl">💬</span>部署成本较高，需要不断调 API 和代码</div>
+    </div>
+
+    <div class="card" data-cat="auto">
+      <div class="card-head">
+        <div class="card-ico">✅</div>
+        <div class="card-meta"><div class="card-title">审稿工具 + 牛马记事本</div><div class="card-author">吴冰砚</div></div>
+        <div class="card-date">3/30</div>
+      </div>
+      <div class="card-effect">非常适合 BF 中利益点和必带事项比较多的项目，避免人工漏看合规问题；牛马记事本集待办事项提醒和当日任务完成情况汇总</div>
+      <div class="card-tools"><span class="tool">豆包</span><span class="tool">飞书OpenClaw</span></div>
+      <div class="card-wow"><span class="wow-lbl">💬</span>文档设置了权限/密码时，需粘贴文字或生成副本后再粘贴飞书链接</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     ✍️ 内容生产
+════════════════════════════════════════ -->
+<div class="section" data-sec="content" id="sec-content">
+  <div class="sec-header">
+    <div class="sec-icon">✍️</div>
+    <div class="sec-info">
+      <div class="sec-title">内容生产</div>
+      <div class="sec-desc">AI 辅助选题、脚本、文案、PPT 全链路内容创作</div>
+    </div>
+    <div class="sec-count">10 个案例</div>
+  </div>
+  <div class="grid">
+
+    <!-- 🏆 获奖：梁思致 3/24 -->
+    <div class="card is-award" data-cat="content">
+      <div class="award-badge">🏆 当日获奖</div>
+      <div class="card-head">
+        <div class="card-ico">⚡</div>
+        <div class="card-meta"><div class="card-title">CatDesk + Brief 一键生产内容</div><div class="card-author">梁思致</div></div>
+        <div class="card-date">3/24</div>
+      </div>
+      <div class="card-effect">生成速度非常快，内容详实且贴近需求</div>
+      <div class="card-tools"><span class="tool">CatDesk</span></div>
+      <div class="card-wow"><span class="wow-lbl">💬</span>整体内容比较常规，未进行商家品牌化定制</div>
+    </div>
+
+    <!-- 普通卡片 -->
+    <div class="card" data-cat="content">
+      <div class="card-head">
+        <div class="card-ico">📄</div>
+        <div class="card-meta"><div class="card-title">AI 生成 5 分钟阅读物料</div><div class="card-author">李梦迪</div></div>
+        <div class="card-date">3/23</div>
+      </div>
+      <div class="card-effect">生成全文阅读时长约 5 分钟的内容物料，AI 指令驱动图文生成</div>
+      <div class="card-tools"><span class="tool">AI指令生成（图文）</span></div>
+      <div class="card-wow"><span class="wow-lbl">💬</span>还想做视频但 prompt 和分镜调教太费功夫，下期再说</div>
+      <a class="demo-btn" href="https://km.sankuai.com/collabpage/2752129382" target="_blank">📄 查看物料文档</a>
+    </div>
+
+    <div class="card" data-cat="content">
+      <div class="card-head">
+        <div class="card-ico">🎬</div>
+        <div class="card-meta"><div class="card-title">爆款视频拆解 + 脚本生成自动化</div><div class="card-author">杨晨</div></div>
+        <div class="card-date">3/25</div>
+      </div>
+      <div class="card-effect">自动解析抖音链接→提取无水印视频+封面+音频→识别文案+金句→生成爆款模版→结合热点生成新内容，全流程自动化</div>
+      <div class="card-tools"><span class="tool">自研爆款视频分析Skill</span></div>
+      <div class="card-wow"><span class="wow-lbl">🤩</span>供应商缺乏爆款方法论，现在一个链接搞定</div>
+    </div>
+
+    <div class="card" data-cat="content">
+      <div class="card-head">
+        <div class="card-ico">🗺️</div>
+        <div class="card-meta"><div class="card-title">CatDesk 投放数据自动汇总 + 旅行攻略网页生成</div><div class="card-author">常紫璇</div></div>
+        <div class="card-date">3/25</div>
+      </div>
+      <div class="card-effect">自动抓取供应商填写的前端数据（展点消）汇总写表，告别手动复制粘贴；同时生成可视化旅行攻略网页</div>
+      <div class="card-tools"><span class="tool">CatPaw Desk</span><span class="tool">Tabbit</span></div>
+      <div class="card-wow"><span class="wow-lbl">💬</span>网页版景点链接暂时点不开，但可二次让 Tabbit 优化</div>
+      <a class="demo-btn" href="https://tabweaver.tab-browser.com/projects/230b75fc-9d94-43f6-998c-8c7132e6f12e/index.html" target="_blank">🌐 查看旅行攻略网页</a>
+    </div>
+
+    <div class="card" data-cat="content">
+      <div class="card-head">
+        <div class="card-ico">📅</div>
+        <div class="card-meta"><div class="card-title">Tabbit 一键生成月度营销热点日历</div><div class="card-author">许辰</div></div>
+        <div class="card-date">3/31</div>
+      </div>
+      <div class="card-effect">输入产品名+项目背景+月份，自动生成全量节日节气大促节点横版日历，每个节点含推荐话题标签+产品结合策略+具体传播玩法</div>
+      <div class="card-tools"><span class="tool">Tabbit</span></div>
+      <div class="card-wow"><span class="wow-lbl">🤩</span>解决月度热点日历人工整理耗时问题，内置时效性提醒</div>
+    </div>
+
+    <div class="card" data-cat="content">
+      <div class="card-head">
+        <div class="card-ico">🌿</div>
+        <div class="card-meta"><div class="card-title">乐生活养生节策略品类洞察</div><div class="card-author">王丽娟</div></div>
+        <div class="card-date">4/3</div>
+      </div>
+      <div class="card-effect">输入平台、品类与产出要求，按小红书词云/爆款视频/人群、抖音人群画像/消费特征做双平台策略输出</div>
+      <div class="card-tools"><span class="tool">飞书 OpenClaw</span></div>
+      <div class="card-wow"><span class="wow-lbl">💬</span>不能直接生成词云，需要和其他 AI 工具配合</div>
+    </div>
+
+    <div class="card" data-cat="content">
+      <div class="card-head">
+        <div class="card-ico">💊</div>
+        <div class="card-meta"><div class="card-title">红美计划商家代投方案自动化生成</div><div class="card-author">颜玮</div></div>
+        <div class="card-date">4/3</div>
+      </div>
+      <div class="card-effect">输入药企名称、投放时间、投放金额、投放产品四个参数，自动生成完整联投方案 PPT，10 分钟内产出 19 页结构完整的商业提案</div>
+      <div class="card-tools"><span class="tool">CatPaw Desk</span></div>
+      <div class="card-wow"><span class="wow-lbl">💬</span>市场数据部分多基于行业通用数据，具体药企独家数据仍需人工补充</div>
+    </div>
+
+    <div class="card" data-cat="content">
+      <div class="card-head">
+        <div class="card-ico">🕵️</div>
+        <div class="card-meta"><div class="card-title">Tabbit 4 个自建 Agent 妙招（联名案例/营销日历/热梗小报/竞品洞察）</div><div class="card-author">张宸雪</div></div>
+        <div class="card-date">4/3</div>
+      </div>
+      <div class="card-effect">①品牌跨界联名案例深度搜集；②年度/月度营销日历生成器；③热梗营销小报 Agent；④竞品洞察 Agent 一键抓取各平台功能活动补贴口碑</div>
+      <div class="card-tools"><span class="tool">Tabbit AI浏览器</span></div>
+      <div class="card-wow"><span class="wow-lbl">💬</span>暂不支持长期自动化操作（定时日报/自动推送飞书）</div>
+    </div>
+
+    <div class="card" data-cat="content">
+      <div class="card-head">
+        <div class="card-ico">🔥</div>
+        <div class="card-meta"><div class="card-title">全自动热梗营销情报官 Skill + H5 情报页</div><div class="card-author">李健祺</div></div>
+        <div class="card-date">4/7</div>
+      </div>
+      <div class="card-effect">每日自动抓取微博/抖音/小红书 TOP30 热榜→识别跨平台共振话题→深度分析重点梗→自动生成三端借势文案（外卖/拼好饭/闪购）→输出 H5 情报页</div>
+      <div class="card-tools"><span class="tool">CatDesk</span><span class="tool">微博热搜</span><span class="tool">抖音热榜</span><span class="tool">千瓜数据</span></div>
+      <div class="card-wow"><span class="wow-lbl">💬</span>小红书有反爬检测、千瓜需人工维护</div>
+      <a class="demo-btn" href="https://yuyuyusleep.github.io/hot-meme-report/hot-meme-report.html" target="_blank">🌐 查看 H5 情报页</a>
+    </div>
+
+    <div class="card" data-cat="content">
+      <div class="card-head">
+        <div class="card-ico">🔄</div>
+        <div class="card-meta"><div class="card-title">项目复盘/案例拆解模板（Tabbit 复盘大师妙招）</div><div class="card-author">李佳琪</div></div>
+        <div class="card-date">4/8</div>
+      </div>
+      <div class="card-effect">扮演资深项目经理，根据项目简述和核心数据，按目标回顾/亮点/不足/可复用 SOP 四个框架生成复盘报告</div>
+      <div class="card-tools"><span class="tool">Tabbit（复盘大师妙招）</span></div>
+      <div class="card-wow"><span class="wow-lbl">💡</span>可以把这份复盘框架直接转化为达人筛选 Brief 框架</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     📊 数据分析
+════════════════════════════════════════ -->
+<div class="section" data-sec="data" id="sec-data">
+  <div class="sec-header">
+    <div class="sec-icon">📊</div>
+    <div class="sec-info">
+      <div class="sec-title">数据分析</div>
+      <div class="sec-desc">AI 处理海量数据、竞品情报、投放复盘，洞察驱动决策</div>
+    </div>
+    <div class="sec-count">11 个案例</div>
+  </div>
+  <div class="grid">
+
+    <div class="card" data-cat="data">
+      <div class="card-head">
+        <div class="card-ico">📈</div>
+        <div class="card-meta"><div class="card-title">Levi 助手数据播报小助手</div><div class="card-author">姚雪怡</div></div>
+        <div class="card-date">3/23</div>
+      </div>
+      <div class="card-effect">快速完成数据加和与播报文案，节省手动计算时间</div>
+      <div class="card-tools"><span class="tool">Levi助手</span><span class="tool">Gemini→GPT</span></div>
+      <div class="card-wow"><span class="wow-lbl">💡</span>切换 GPT 模型后效果更稳定，无需龙虾</div>
+    </div>
+
+    <div class="card" data-cat="data">
+      <div class="card-head">
+        <div class="card-ico">🔬</div>
+        <div class="card-meta"><div class="card-title">AI 处理十万级用户数据分析</div><div class="card-author">郭枫</div></div>
+        <div class="card-date">3/24</div>
+      </div>
+      <div class="card-effect">从十几万用户 query 中精准分析，效率大幅提升</div>
+      <div class="card-tools"><span class="tool">安全屋DeepSeek</span><span class="tool">BI工具</span></div>
+      <div class="card-wow"><span class="wow-lbl">💡</span>AI 更擅长数据能力，但需把背景信息喂透</div>
+    </div>
+
+    <div class="card" data-cat="data">
+      <div class="card-head">
+        <div class="card-ico">🗂️</div>
+        <div class="card-meta"><div class="card-title">Tabbit AI 浏览器妙招玩转日常工作</div><div class="card-author">尚伟光</div></div>
+        <div class="card-date">3/25</div>
+      </div>
+      <div class="card-effect">将小红书笔记数据整理成带链接的 Excel 表格，光标悬停可预览内容</div>
+      <div class="card-tools"><span class="tool">Tabbit AI浏览器</span></div>
+      <div class="card-wow"><span class="wow-lbl">😄</span>从不正经角度：让老板发现不了在摸鱼</div>
+    </div>
+
+    <div class="card" data-cat="data">
+      <div class="card-head">
+        <div class="card-ico">📊</div>
+        <div class="card-meta"><div class="card-title">DeepSeek 小红书数据分析 + 内容优化</div><div class="card-author">林慧敏</div></div>
+        <div class="card-date">3/25</div>
+      </div>
+      <div class="card-effect">分析 3 月小红书账号数据（曝光、点赞等），洞察爆款笔记规律；同时辅助内容优化</div>
+      <div class="card-tools"><span class="tool">DeepSeek</span></div>
+      <div class="card-wow"><span class="wow-lbl">💬</span>飞书 OpenClaw 刚开始用还在训练，目前先用 DeepSeek 过渡</div>
+    </div>
+
+    <div class="card" data-cat="data">
+      <div class="card-head">
+        <div class="card-ico">🕷️</div>
+        <div class="card-meta"><div class="card-title">小红书专辑笔记批量爬虫 + 用户偏好分析</div><div class="card-author">孙卉函</div></div>
+        <div class="card-date">3/25</div>
+      </div>
+      <div class="card-effect">批量爬取专辑笔记，提取用户内容偏好，辅助内容策略决策</div>
+      <div class="card-tools"><span class="tool">小红书爬虫</span><span class="tool">AI分析</span></div>
+      <div class="card-wow"><span class="wow-lbl">🤩</span>数据量大时效率显著提升，自动化替代手动翻笔记</div>
+    </div>
+
+    <div class="card" data-cat="data">
+      <div class="card-head">
+        <div class="card-ico">🕵️</div>
+        <div class="card-meta"><div class="card-title">飞书 OpenClaw 竞品情报自动分析智能体</div><div class="card-author">吴奕乐</div></div>
+        <div class="card-date">3/30</div>
+      </div>
+      <div class="card-effect">定期自动抓取竞品在小红书/抖音的爆款内容，产出数据化竞争洞察与机会点报告</div>
+      <div class="card-tools"><span class="tool">飞书 OpenClaw</span></div>
+      <div class="card-wow"><span class="wow-lbl">⚠️</span>AI 会在互动数上"作假"出现幻觉，需重点调教诚信问题</div>
+    </div>
+
+    <div class="card" data-cat="data">
+      <div class="card-head">
+        <div class="card-ico">💥</div>
+        <div class="card-meta"><div class="card-title">飞书 OpenClaw 爆文复盘 + 内容优化体系</div><div class="card-author">陈同欣</div></div>
+        <div class="card-date">3/31</div>
+      </div>
+      <div class="card-effect">以周为节点进行数据复盘，归纳高互动内容核心要素与叙事框架，将爆文公式植入后续创作流程</div>
+      <div class="card-tools"><span class="tool">飞书 OpenClaw</span></div>
+      <div class="card-wow"><span class="wow-lbl">🤩</span>构建数据驱动的内容优化体系，覆盖抖音/小红书双平台</div>
+    </div>
+
+    <div class="card" data-cat="data">
+      <div class="card-head">
+        <div class="card-ico">🏷️</div>
+        <div class="card-meta"><div class="card-title">CatClaw 内容评级自动化打标看板</div><div class="card-author">赵晓晴</div></div>
+        <div class="card-date">3/31</div>
+      </div>
+      <div class="card-effect">上传数据底表和阈值后，看板自动完成内容打标、评级、汇总分析，评估逻辑基于拼好饭现有标准</div>
+      <div class="card-tools"><span class="tool">CatClaw</span></div>
+      <div class="card-wow"><span class="wow-lbl">💡</span>评估逻辑不是自己定的，直接复用业务已有标准</div>
+    </div>
+
+    <div class="card" data-cat="data">
+      <div class="card-head">
+        <div class="card-ico">🎯</div>
+        <div class="card-meta"><div class="card-title">飞书 OpenClaw 爆款内容拆解 + 投放策略</div><div class="card-author">郑琳</div></div>
+        <div class="card-date">3/31</div>
+      </div>
+      <div class="card-effect">将历史爆文数据及业务线信息输入 OpenClaw，自动分析各业务适配的达人类型与内容方向</div>
+      <div class="card-tools"><span class="tool">飞书 OpenClaw</span></div>
+      <div class="card-wow"><span class="wow-lbl">🤩</span>解决多业务并行时人工复盘效率低的问题</div>
+    </div>
+
+    <div class="card" data-cat="data">
+      <div class="card-head">
+        <div class="card-ico">📐</div>
+        <div class="card-meta"><div class="card-title">整合营销多渠道投放数据汇总自动化</div><div class="card-author">李梦宇</div></div>
+        <div class="card-date">4/1</div>
+      </div>
+      <div class="card-effect">多渠道投放数据输入后自动匹配物料编码并计算 CPM/CPE/CPC/CTR/订单成本等字段，大幅提升数据一致性</div>
+      <div class="card-tools"><span class="tool">飞书 OpenClaw</span></div>
+      <div class="card-wow"><span class="wow-lbl">💡</span>后续可对接飞书多维表格实现代理在线填报</div>
+    </div>
+
+    <div class="card" data-cat="data">
+      <div class="card-head">
+        <div class="card-ico">📋</div>
+        <div class="card-meta"><div class="card-title">发布节奏总表（从飞书日报表和达人计划提取数据）</div><div class="card-author">常子沛</div></div>
+        <div class="card-date">4/8</div>
+      </div>
+      <div class="card-effect">把原本分散的多份数据（日报表+达人计划+投流消耗）合并成一张清晰的横向总览表；多轮对话改表格真的很丝滑</div>
+      <div class="card-tools"><span class="tool">OpenClaw（image工具识别截图）</span></div>
+      <div class="card-wow"><span class="wow-lbl">💬</span>飞书 SHEET 格式 AI 无法读取，得用截图发给 AI，多了这一步</div>
+    </div>
+
+    <div class="card" data-cat="data">
+      <div class="card-head">
+        <div class="card-ico">💇</div>
+        <div class="card-meta"><div class="card-title">乐生活龙抬头项目达人筛选分析报告（美发品类）</div><div class="card-author">李琦</div></div>
+        <div class="card-date">4/8</div>
+      </div>
+      <div class="card-effect">将提报/二核/执行达人 list 整理到一个文档，OpenClaw 读取内容并产出分析报告；总结不同品类的账号筛选特点及对应传播效果</div>
+      <div class="card-tools"><span class="tool">飞书 OpenClaw</span></div>
+      <div class="card-wow"><span class="wow-lbl">💬</span>小红书主页触发 IP 安全限制被反爬拦截拿不到数据</div>
+      <a class="demo-btn" href="https://kkjc5es64c.feishu.cn/docx/R1CFd0gjxoiP3xxHPqLcQt4en7b?from=from_copylink" target="_blank">📄 查看分析报告</a>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     🔍 内容审核
+════════════════════════════════════════ -->
+<div class="section" data-sec="review" id="sec-review">
+  <div class="sec-header">
+    <div class="sec-icon">🔍</div>
+    <div class="sec-info">
+      <div class="sec-title">内容审核</div>
+      <div class="sec-desc">AI 批量审稿、合规检测、脚本质检，替代 90% 人工初审</div>
+    </div>
+    <div class="sec-count">7 个案例</div>
+  </div>
+  <div class="grid">
+
+    <!-- 🏆 获奖：孙心月 3/25 -->
+    <div class="card is-award" data-cat="review">
+      <div class="award-badge">🏆 当日获奖</div>
+      <div class="card-head">
+        <div class="card-ico">📑</div>
+        <div class="card-meta"><div class="card-title">飞书 OpenClaw 达人稿件批量审核</div><div class="card-author">孙心月</div></div>
+        <div class="card-date">3/25</div>
+      </div>
+      <div class="card-effect">批量审核达人笔记并给出修改建议，效率提升约 50%，建议可直接补充在稿件文档末尾</div>
+      <div class="card-tools"><span class="tool">飞书 OpenClaw</span></div>
+      <div class="card-wow"><span class="wow-lbl">🤩</span>读取和反馈速度很快，修改建议可直接写入文档</div>
+    </div>
+
+    <!-- 🏆 获奖：刘璐璐 3/31 -->
+    <div class="card is-award" data-cat="review">
+      <div class="award-badge">🏆 当日获奖</div>
+      <div class="card-head">
+        <div class="card-ico">🎥</div>
+        <div class="card-meta"><div class="card-title">飞书 OpenClaw 达人视频脚本审核</div><div class="card-author">刘璐璐</div></div>
+        <div class="card-date">3/31</div>
+      </div>
+      <div class="card-effect">发送脚本截图+视频，AI 提取关键帧对照脚本检查是否按要求拍摄，并给出修改建议</div>
+      <div class="card-tools"><span class="tool">飞书 OpenClaw</span></div>
+      <div class="card-wow"><span class="wow-lbl">💬</span>目前需手动下载视频发到对话框，无法批量</div>
+    </div>
+
+    <!-- 普通卡片 -->
+    <div class="card" data-cat="review">
+      <div class="card-head">
+        <div class="card-ico">🛡️</div>
+        <div class="card-meta"><div class="card-title">消费医疗卡审点审核及修改线上工具</div><div class="card-author">李梦迪</div></div>
+        <div class="card-date">3/23</div>
+      </div>
+      <div class="card-effect">人工初审代替率 90%，不定期更新知识库</div>
+      <div class="card-tools"><span class="tool">nocode</span></div>
+      <div class="card-wow"><span class="wow-lbl">🤩</span>让躲审像呼吸一样简单</div>
+      <a class="demo-btn" href="https://yimeibikengjiancha.mynocode.host/" target="_blank">🌐 体验审核工具</a>
+    </div>
+
+    <div class="card" data-cat="review">
+      <div class="card-head">
+        <div class="card-ico">📋</div>
+        <div class="card-meta"><div class="card-title">飞书 Wiki 多维表格 AI 内容审核</div><div class="card-author">向祺睿</div></div>
+        <div class="card-date">3/24</div>
+      </div>
+      <div class="card-effect">可固定筛选词，测试好后批量处理</div>
+      <div class="card-tools"><span class="tool">飞书API</span><span class="tool">龙虾AI助手</span></div>
+      <div class="card-wow"><span class="wow-lbl">💬</span>飞书 API 对 Wiki 表格支持有限，需要绕路</div>
+    </div>
+
+    <div class="card" data-cat="review">
+      <div class="card-head">
+        <div class="card-ico">👀</div>
+        <div class="card-meta"><div class="card-title">淘宝闪购抖音原生内容监控报告</div><div class="card-author">田卓颖</div></div>
+        <div class="card-date">4/2</div>
+      </div>
+      <div class="card-effect">抓取近 30 天抖音内容并分类、拆解、提炼利益点，输出结构化报告，系统监控竞品内容生态</div>
+      <div class="card-tools"><span class="tool">Tabbit浏览器</span></div>
+      <div class="card-wow"><span class="wow-lbl">💬</span>当前仍需手动打开并登录抖音界面</div>
+      <a class="demo-btn" href="https://web.tabbit-ai.com/share/skill/RiCCYZmstt" target="_blank">🔗 查看监控 Skill</a>
+    </div>
+
+    <div class="card" data-cat="review">
+      <div class="card-head">
+        <div class="card-ico">🔎</div>
+        <div class="card-meta"><div class="card-title">BF 硬性要求批量检测 + 每日数据填写情况检查</div><div class="card-author">徐晨</div></div>
+        <div class="card-date">4/2</div>
+      </div>
+      <div class="card-effect">批量识别脚本硬性问题，减少人工逐条检查成本；定时检查供应商每日数据填写情况并发送截图</div>
+      <div class="card-tools"><span class="tool">CatPaw Desk</span></div>
+      <div class="card-wow"><span class="wow-lbl">💬</span>对创意性、植入自然度等软性问题仍无法完全识别，仍需人工复核</div>
+    </div>
+
+    <div class="card" data-cat="review">
+      <div class="card-head">
+        <div class="card-ico">⚕️</div>
+        <div class="card-meta"><div class="card-title">三医项目多平台合规审核工作流</div><div class="card-author">任建怡</div></div>
+        <div class="card-date">4/3</div>
+      </div>
+      <div class="card-effect">三个场景：①脚本写完怕踩红线→一键审核；②内容不知道能否说→自动识别违规风险点；③团队多人产出脚本→统一合规标准</div>
+      <div class="card-tools"><span class="tool">OpenClaw</span><span class="tool">豆包生成Skill</span></div>
+      <div class="card-wow"><span class="wow-lbl">💬</span>暂不支持批量读取飞书多维表格脚本内容，无法自动把审核结果写回表格</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     🌟 达人管理
+════════════════════════════════════════ -->
+<div class="section" data-sec="kol" id="sec-kol">
+  <div class="sec-header">
+    <div class="sec-icon">🌟</div>
+    <div class="sec-info">
+      <div class="sec-title">达人管理</div>
+      <div class="sec-desc">AI 辅助达人筛选、评论维护检测、爆款内容方向分析</div>
+    </div>
+    <div class="sec-count">5 个案例</div>
+  </div>
+  <div class="grid">
+
+    <div class="card" data-cat="kol">
+      <div class="card-head">
+        <div class="card-ico">🔎</div>
+        <div class="card-meta"><div class="card-title">智能媒介 PR 达人筛选助手</div><div class="card-author">李文佳</div></div>
+        <div class="card-date">3/23</div>
+      </div>
+      <div class="card-effect">98 个达人 3 分钟内完成初筛，快速匹配 PR 达人库博主信息</div>
+      <div class="card-tools"><span class="tool">龙虾（CatClaw）</span></div>
+      <div class="card-wow"><span class="wow-lbl">💬</span>无法接入蒲公英/星图后台，数据需手动导出</div>
+    </div>
+
+    <div class="card" data-cat="kol">
+      <div class="card-head">
+        <div class="card-ico">💬</div>
+        <div class="card-meta"><div class="card-title">Tabbit 批量检测笔记评论区维护情况</div><div class="card-author">李艳杰</div></div>
+        <div class="card-date">4/1</div>
+      </div>
+      <div class="card-effect">将笔记链接批量发给 Tabbit，自动检测达人是否按要求回复评论，输出 Excel 表格，快速筛出未维护评论区的达人 list</div>
+      <div class="card-tools"><span class="tool">Tabbit浏览器</span></div>
+      <div class="card-wow"><span class="wow-lbl">💬</span>量级大时速度较慢；需注意媒体平台需登录状态</div>
+    </div>
+
+    <div class="card" data-cat="kol">
+      <div class="card-head">
+        <div class="card-ico">📈</div>
+        <div class="card-meta"><div class="card-title">用 Agent 自动分析小红书爆款内容方向（千瓜爆款分析 Skill）</div><div class="card-author">杨鑫钰</div></div>
+        <div class="card-date">4/7</div>
+      </div>
+      <div class="card-effect">自动登录千瓜数据平台→按互动量抓取指定品类 TOP N 笔记→逐篇获取标题/博主/互动数据/热搜词→整合输出结构化报告</div>
+      <div class="card-tools"><span class="tool">CatDesk</span><span class="tool">千瓜数据平台</span></div>
+      <div class="card-wow"><span class="wow-lbl">💬</span>登录千瓜仍需手动拖滑块，且小红书侧会检测 AI 使用</div>
+    </div>
+
+    <div class="card" data-cat="kol">
+      <div class="card-head">
+        <div class="card-ico">⚡</div>
+        <div class="card-meta"><div class="card-title">Kimi 批量筛选达人执行表</div><div class="card-author">李旭梅</div></div>
+        <div class="card-date">4/8</div>
+      </div>
+      <div class="card-effect">仅需人工核对 10% 的优质达人，其余筛选结果可直接复制回原达人执行表，彻底省去 80% 的重复劳动</div>
+      <div class="card-tools"><span class="tool">Kimi</span><span class="tool">Excel</span></div>
+      <div class="card-wow"><span class="wow-lbl">💬</span>多维格式 AI 无法读取，需要下载 Excel 表格</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     📡 日报监测
+════════════════════════════════════════ -->
+<div class="section" data-sec="monitor" id="sec-monitor">
+  <div class="sec-header">
+    <div class="sec-icon">📡</div>
+    <div class="sec-info">
+      <div class="sec-title">日报监测</div>
+      <div class="sec-desc">定时自动推送日报、实时监测数据、热点趋势追踪</div>
+    </div>
+    <div class="sec-count">5 个案例</div>
+  </div>
+  <div class="grid">
+
+    <!-- 🏆 获奖：王泽文 4/3 -->
+    <div class="card is-award" data-cat="monitor">
+      <div class="award-badge">🏆 当日获奖</div>
+      <div class="card-head">
+        <div class="card-ico">💬</div>
+        <div class="card-meta"><div class="card-title">AI 聊天室 + 全网热点日报 Skill</div><div class="card-author">王泽文</div></div>
+        <div class="card-date">4/3</div>
+      </div>
+      <div class="card-effect">搭建双角色 AI 聊天室辅助卡点讨论；自动抓取四平台热榜并输出编导简报，零成本部署、可沉淀本地记忆</div>
+      <div class="card-tools"><span class="tool">Claude(CatDesk)</span><span class="tool">DeepSeek API</span><span class="tool">Kimi API</span><span class="tool">GitHub Pages</span></div>
+      <div class="card-wow"><span class="wow-lbl">💬</span>真实多人实时协作仍做不到，热点简报过长需拆条发送</div>
+      <a class="demo-btn" href="https://yuyuyusleep.github.io/ai-chatroom/" target="_blank">🌐 体验 AI 聊天室</a>
+    </div>
+
+    <!-- 普通卡片 -->
+    <div class="card" data-cat="monitor">
+      <div class="card-head">
+        <div class="card-ico">📬</div>
+        <div class="card-meta"><div class="card-title">投放日报自动推送 + 成本盯盘优化</div><div class="card-author">许亚然</div></div>
+        <div class="card-date">3/30</div>
+      </div>
+      <div class="card-effect">每天早 10 点自动推送前日日报，含重点监测指标、投放结论、风险预警、增长亮点及今日优化建议</div>
+      <div class="card-tools"><span class="tool">CatPaw Desk</span></div>
+      <div class="card-wow"><span class="wow-lbl">💡</span>数据可以图表形式呈现，强关键指标结果感知</div>
+    </div>
+
+    <div class="card" data-cat="monitor">
+      <div class="card-head">
+        <div class="card-ico">🌅</div>
+        <div class="card-meta"><div class="card-title">每日 4 项定时监测日报自动推送</div><div class="card-author">王迪</div></div>
+        <div class="card-date">4/1</div>
+      </div>
+      <div class="card-effect">每天早上自动推送天气、交通、品牌投放监测、各媒体平台热点趋势 4 项日报，以长图片形式发送大象私信</div>
+      <div class="card-tools"><span class="tool">CatPaw Desk</span></div>
+      <div class="card-wow"><span class="wow-lbl">💬</span>品牌投放&热点趋势监测仍有以老旧数据欺骗的行为，时效性持续教育中</div>
+    </div>
+
+    <div class="card" data-cat="monitor">
+      <div class="card-head">
+        <div class="card-ico">📊</div>
+        <div class="card-meta"><div class="card-title">乐生活中小发踏青项目日报内容输出</div><div class="card-author">阮冶</div></div>
+        <div class="card-date">4/7</div>
+      </div>
+      <div class="card-effect">提升人效约 10%，缩短每日核算、数据校准和日报文案输出时间</div>
+      <div class="card-tools"><span class="tool">飞书 OpenClaw</span></div>
+      <div class="card-wow"><span class="wow-lbl">💬</span>第一天需要先把数据维度和文案模板搭好，前期人工介入较多</div>
+      <a class="demo-btn" href="https://ecn17pm48hpm.feishu.cn/sheets/MKA3siqU4hzHXMtTupwcvId2nhb?sheet=fa5778" target="_blank">📊 查看日报飞书表</a>
+    </div>
+
+    <div class="card" data-cat="monitor">
+      <div class="card-head">
+        <div class="card-ico">🔍</div>
+        <div class="card-meta"><div class="card-title">搜推 QV 实时监测 Skill（自建 CatPaw Desk Skill）</div><div class="card-author">闫月娇</div></div>
+        <div class="card-date">4/8</div>
+      </div>
+      <div class="card-effect">按搜索词 1-3 分钟实现 3 个自动：自动监测搜索 QV/UV/下单量 + 自动返数到指定群聊 + 自动追加写入学城文档表格保留历史记录</div>
+      <div class="card-tools"><span class="tool">CatPaw Desk（自建Skill）</span></div>
+      <div class="card-wow"><span class="wow-lbl">💬</span>有时后台显示已发送但大象实际未推送群聊，需手动提醒</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     🤝 供应商管理
+════════════════════════════════════════ -->
+<div class="section" data-sec="vendor" id="sec-vendor">
+  <div class="sec-header">
+    <div class="sec-icon">🤝</div>
+    <div class="sec-info">
+      <div class="sec-title">供应商管理</div>
+      <div class="sec-desc">AI 智能匹配代理商、整合供应商能力看板，半天工作压缩到 3 分钟</div>
+    </div>
+    <div class="sec-count">2 个案例</div>
+  </div>
+  <div class="grid">
+
+    <div class="card" data-cat="vendor">
+      <div class="card-head">
+        <div class="card-ico">🤝</div>
+        <div class="card-meta"><div class="card-title">AI 智能匹配代理商 + 商户需求</div><div class="card-author">周含蕊</div></div>
+        <div class="card-date">3/31</div>
+      </div>
+      <div class="card-effect">将代理商名单与商户需求表同时喂给 AI，自动按品类匹配度、预算等维度择优，匹配准确率约 90%，半天工作压缩至 3 分钟</div>
+      <div class="card-tools"><span class="tool">CatPaw Desk</span></div>
+      <div class="card-wow"><span class="wow-lbl">💡</span>后续计划把代理商历史项目数据也放进去</div>
+    </div>
+
+    <div class="card" data-cat="vendor">
+      <div class="card-head">
+        <div class="card-ico">🗺️</div>
+        <div class="card-meta"><div class="card-title">供应商能力概览看板</div><div class="card-author">张晶</div></div>
+        <div class="card-date">4/1</div>
+      </div>
+      <div class="card-effect">将多个 wiki 中的渠道和供应商能力信息整合为单一页面，覆盖选渠道选商、报备、项目结算全流程</div>
+      <div class="card-tools"><span class="tool">CatClaw</span></div>
+      <div class="card-wow"><span class="wow-lbl">💡</span>后续迭代：增加唤起大象功能、增加达人品类等</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     🎨 生活创意
+════════════════════════════════════════ -->
+<div class="section" data-sec="life" id="sec-life">
+  <div class="sec-header">
+    <div class="sec-icon">🎨</div>
+    <div class="sec-info">
+      <div class="sec-title">生活创意</div>
+      <div class="sec-desc">零代码建站、趣味工具、AI 产品原型，脑洞大开的个人应用</div>
+    </div>
+    <div class="sec-count">6 个案例</div>
+  </div>
+  <div class="grid">
+
+    <!-- 🏆 获奖：陈琦 3/23 -->
+    <div class="card is-award" data-cat="life">
+      <div class="award-badge">🏆 当日获奖</div>
+      <div class="card-head">
+        <div class="card-ico">🎰</div>
+        <div class="card-meta"><div class="card-title">打工皇帝吃饭决策器</div><div class="card-author">陈琦</div></div>
+        <div class="card-date">3/23</div>
+      </div>
+      <div class="card-effect">全程对话驱动，零代码零做图，写完代码→注册账号→部署上线，全程只干了 2 件事：写指令 + 告诉它验证码</div>
+      <div class="card-tools"><span class="tool">CatPaw Desk</span></div>
+      <div class="card-wow"><span class="wow-lbl">🤩</span>AI 自己完成所有部署，人只需要提供验证码</div>
+      <a class="demo-btn" href="https://gm9my7.csb.app/" target="_blank">🌐 体验决策器</a>
+    </div>
+
+    <!-- 🏆 获奖：于瑛琪 3/24 -->
+    <div class="card is-award" data-cat="life">
+      <div class="award-badge">🏆 当日获奖</div>
+      <div class="card-head">
+        <div class="card-ico">✈️</div>
+        <div class="card-meta"><div class="card-title">懒人机票监控 + 简历 AI 筛选</div><div class="card-author">于瑛琪</div></div>
+        <div class="card-date">3/24</div>
+      </div>
+      <div class="card-effect">实时监控票价自动出票；AI 筛出的 top 候选人正是已入职的文佳！</div>
+      <div class="card-tools"><span class="tool">CatPaw Desk</span></div>
+      <div class="card-wow"><span class="wow-lbl">🤩</span>把已入职的文佳混进去，AI 筛出的 top1 正是她！</div>
+    </div>
+
+    <!-- 🏆 获奖：杨帅 4/8 -->
+    <div class="card is-award" data-cat="life">
+      <div class="award-badge">🏆 当日获奖</div>
+      <div class="card-head">
+        <div class="card-ico">🎪</div>
+        <div class="card-meta"><div class="card-title">CatDesk · PUA 鞭子 Skill（Canvas + tkinter 动画）</div><div class="card-author">杨帅</div></div>
+        <div class="card-date">4/8</div>
+      </div>
+      <div class="card-effect">内置四级压力升级体系（L1 温和失望→L2 灵魂拷问→L3 绩效考核→L4 毕业警告），AI 摆烂时抽一下会切换解题思路继续干活</div>
+      <div class="card-tools"><span class="tool">CatPaw Desk（自建Skill）</span><span class="tool">Canvas</span><span class="tool">tkinter</span></div>
+      <div class="card-wow"><span class="wow-lbl">😂</span>趣味性强；纯娱乐/管理向 skill，实际提效视使用场景而定</div>
+    </div>
+
+    <!-- 普通卡片 -->
+    <div class="card" data-cat="life">
+      <div class="card-head">
+        <div class="card-ico">🌐</div>
+        <div class="card-meta"><div class="card-title">Vibe Coding 零代码建站（3 个上线网站）</div><div class="card-author">周俊</div></div>
+        <div class="card-date">3/24</div>
+      </div>
+      <div class="card-effect">成功部署 3 个外部上线网站，功能完整可用（作家集合/莫兰迪穿搭抽签等）</div>
+      <div class="card-tools"><span class="tool">Nocode</span><span class="tool">Gemini</span></div>
+      <div class="card-wow"><span class="wow-lbl">💬</span>图片抓取是最大卡点，总是内容不对</div>
+      <a class="demo-btn" href="https://spring-hues-wardrobe.mynocode.host/" target="_blank">🌐 体验穿搭网站</a>
+    </div>
+
+    <div class="card" data-cat="life">
+      <div class="card-head">
+        <div class="card-ico">🎤</div>
+        <div class="card-meta"><div class="card-title">李荣浩话风转化器（Tabbit 妙招）</div><div class="card-author">罗伊</div></div>
+        <div class="card-date">4/1</div>
+      </div>
+      <div class="card-effect">将想表达的内容转化成李荣浩说话方式，达到平静发泄效果；已上传 Tabbit 妙招广场，可一键添加使用</div>
+      <div class="card-tools"><span class="tool">Tabbit（妙招广场）</span></div>
+      <div class="card-wow"><span class="wow-lbl">💡</span>玩法可延伸，参考此妙招可训练任意话风</div>
+    </div>
+
+    <div class="card" data-cat="life">
+      <div class="card-head">
+        <div class="card-ico">🚀</div>
+        <div class="card-meta"><div class="card-title">AIShift 产品原型搭建</div><div class="card-author">李飞</div></div>
+        <div class="card-date">4/2</div>
+      </div>
+      <div class="card-effect">快速完成 AI 学习与职业转型 App 的初级版本原型搭建，想法到上线链路很短</div>
+      <div class="card-tools"><span class="tool">Gemini</span><span class="tool">NetlifyDrop</span></div>
+      <div class="card-wow"><span class="wow-lbl">🤩</span>想法到上线链路很短；目前还是初级版本，功能仍在完善中</div>
+      <a class="demo-btn" href="https://aiadvanced.netlify.app/" target="_blank">🌐 体验 AIShift</a>
+    </div>
+
+  </div>
+</div>
+
+<!-- 底部图例 -->
+<div class="legend">
+  <div class="leg-item" onclick="filterAll('auto')"><div class="leg-dot" style="background:var(--c1)"></div>⚡ 流程自动化 · 14</div>
+  <div class="leg-item" onclick="filterAll('content')"><div class="leg-dot" style="background:var(--c2)"></div>✍️ 内容生产 · 10</div>
+  <div class="leg-item" onclick="filterAll('data')"><div class="leg-dot" style="background:var(--c3)"></div>📊 数据分析 · 11</div>
+  <div class="leg-item" onclick="filterAll('review')"><div class="leg-dot" style="background:var(--c4)"></div>🔍 内容审核 · 7</div>
+  <div class="leg-item" onclick="filterAll('kol')"><div class="leg-dot" style="background:var(--c5)"></div>🌟 达人管理 · 5</div>
+  <div class="leg-item" onclick="filterAll('monitor')"><div class="leg-dot" style="background:var(--c6)"></div>📡 日报监测 · 5</div>
+  <div class="leg-item" onclick="filterAll('vendor')"><div class="leg-dot" style="background:var(--c7)"></div>🤝 供应商管理 · 2</div>
+  <div class="leg-item" onclick="filterAll('life')"><div class="leg-dot" style="background:var(--c8)"></div>🎨 生活创意 · 6</div>
+</div>
+
+</div><!-- /wrap -->
+
+<script>
+// ══════════════════════════════════════════
+// 性能优化版 · 2026-04
+// 优化点：
+//   1. 粒子/视差延迟到首屏渲染完成后启动
+//   2. mousemove 全部 throttle，降低事件频率
+//   3. 卡片入场动画仅对可见区域触发，屏外卡片不预跑动画
+//   4. 封面图首屏 eager+fetchpriority，屏外 lazy
+//   5. 学城图 onerror 自动换分类兜底图
+// ══════════════════════════════════════════
+
+// ── 工具：节流函数 ──
+function throttle(fn, ms) {
+  let last = 0;
+  return function(...args) {
+    const now = Date.now();
+    if (now - last >= ms) { last = now; fn.apply(this, args); }
+  };
+}
+
+// ── 鼠标光晕（throttle 60fps → 32fps，减少重排）──
+const glow = document.getElementById('glow');
+document.addEventListener('mousemove', throttle(e => {
+  glow.style.left = e.clientX + 'px';
+  glow.style.top  = e.clientY + 'px';
+}, 32));
+
+// ── 卡片内光效（throttle，避免每帧触发）──
+document.querySelectorAll('.card').forEach(card => {
+  card.addEventListener('mousemove', throttle(e => {
+    const r = card.getBoundingClientRect();
+    card.style.setProperty('--mx', ((e.clientX - r.left) / r.width * 100).toFixed(1) + '%');
+    card.style.setProperty('--my', ((e.clientY - r.top)  / r.height * 100).toFixed(1) + '%');
+  }, 32));
+});
+
+// ── 视差（throttle + will-change，延迟到 idle 后启动）──
+const wrap = document.querySelector('.wrap');
+wrap.style.willChange = 'transform';
+let tx=0,ty=0,cx=0,cy=0;
+let parallaxStarted = false;
+function startParallax() {
+  if (parallaxStarted) return;
+  parallaxStarted = true;
+  document.addEventListener('mousemove', throttle(e => {
+    const ox=innerWidth/2, oy=innerHeight/2;
+    tx=(e.clientX-ox)/ox*3; ty=(e.clientY-oy)/oy*3;
+  }, 32));
+  (function raf(){
+    cx+=(tx-cx)*.04; cy+=(ty-cy)*.04;
+    wrap.style.transform=`translate(${cx.toFixed(2)}px,${cy.toFixed(2)}px)`;
+    requestAnimationFrame(raf);
+  })();
+}
+
+// ── 筛选逻辑 ──
+function filterAll(cat) {
+  document.querySelectorAll('.f-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.f === cat || (cat==='all' && b.dataset.f==='all'));
+  });
+  document.querySelectorAll('.section').forEach(sec => {
+    if (cat === 'all') {
+      sec.classList.remove('hidden');
+    } else {
+      sec.classList.toggle('hidden', sec.dataset.sec !== cat);
+    }
+  });
+  if (cat !== 'all') {
+    const target = document.getElementById('sec-' + cat);
+    if (target) setTimeout(() => target.scrollIntoView({behavior:'smooth', block:'start'}), 50);
+  }
+}
+document.querySelectorAll('.f-btn').forEach(btn => {
+  btn.addEventListener('click', () => filterAll(btn.dataset.f));
+});
+
+// ── 背景粒子（延迟到页面 idle 后启动，不阻塞首屏）──
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+function resize(){ canvas.width=innerWidth; canvas.height=innerHeight; }
+resize();
+window.addEventListener('resize', throttle(resize, 200));
+
+function startParticles() {
+  const stars = Array.from({length:80}, () => ({  // 100→80，减少绘制量
+    x: Math.random()*canvas.width, y: Math.random()*canvas.height,
+    r: .4+Math.random()*1.4, a: .15+Math.random()*.55,
+    da: (Math.random()-.5)*.004,
+    vx: (Math.random()-.5)*.12, vy: (Math.random()-.5)*.12,
+  }));
+  (function drawStars(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    stars.forEach(s => {
+      s.x+=s.vx; s.y+=s.vy; s.a+=s.da;
+      if(s.a<.08||s.a>.75) s.da*=-1;
+      if(s.x<0) s.x=canvas.width; if(s.x>canvas.width) s.x=0;
+      if(s.y<0) s.y=canvas.height; if(s.y>canvas.height) s.y=0;
+      ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(165,180,252,${s.a})`; ctx.fill();
+    });
+    requestAnimationFrame(drawStars);
+  })();
+}
+
+// ── 卡片入场动画：仅对可见区域触发，屏外卡片延迟到进入视口再播 ──
+// 首屏卡片（前8张）立即播放，其余暂停等待 IO
+const cards = document.querySelectorAll('.card');
+cards.forEach((c, i) => {
+  if (i < 8) {
+    c.style.animationDelay = (i * .04) + 's';
+    // 首屏卡片直接运行
+  } else {
+    c.style.animationPlayState = 'paused';
+    c.style.animationDelay = '0s';
+  }
+});
+
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.style.animationPlayState = 'running';
+      io.unobserve(e.target); // 播放一次后不再观察
+    }
+  });
+}, {threshold: 0.08, rootMargin: '0px 0px 60px 0px'});
+
+cards.forEach((c, i) => {
+  if (i >= 8) io.observe(c);
+});
+
+// ── 延迟启动非关键动效（粒子+视差），让首屏内容先渲染完 ──
+if ('requestIdleCallback' in window) {
+  requestIdleCallback(() => { startParticles(); startParallax(); }, {timeout: 1500});
+} else {
+  setTimeout(() => { startParticles(); startParallax(); }, 400);
+}
+
+// ══════════════════════════════════════════
+// ── 真实截图封面（学城图片 + YouTube缩略图风格）──
+// ══════════════════════════════════════════
+(function generateCardCovers() {
+
+  // ── 分类主色（用于封面顶部色条和标签）
+  const CAT_COLORS = {
+    auto:    '#6366f1', content: '#f59e0b', data:    '#10b981',
+    review:  '#ef4444', kol:     '#8b5cf6', monitor: '#06b6d4',
+    vendor:  '#f97316', life:    '#ec4899',
+  };
+
+  // ── 分类 AI 插画背景图（美境生成，每个分类一张专属场景图）
+  const CAT_BG_IMGS = {
+    auto:    'imgs/53abb2fd2b3ba574b4b28a5c75abdca61518844.png',  // 黑发男孩+控制台+机械臂
+    content: 'imgs/04ee7cd61fd97f1ab4c1cc034a34faf21610664.png',  // 双辫眼镜女孩+画布+社媒卡片
+    data:    'imgs/ffc59b20aefe1320704b68adbba15f5e1623440.png',  // 卷发男孩+实验室+数据球
+    review:  'imgs/257efbca2c38381eda57392e6830a1141434590.png',  // 短发红西装女孩+剪贴板
+    kol:     'imgs/109d37de4882ada74ae7cb5f8ff598451634206.png',  // 粉色长发女孩+星徽+彩纸
+    monitor: 'imgs/ce216d6cd05cf672aa4d156596fdc1191569511.png',  // 眼镜男孩+监控大屏
+    vendor:  'imgs/62147baf9cee67bf3772395e19242b9b1485151.png',  // 白胡子老爷爷+机器人握手
+    life:    'imgs/91187e364f2857dea274db751cf3702d1479475.png',  // 橙发雀斑女孩+懒人沙发+灯泡
+  };
+
+  // ── 卡片标题 → 专属AI插画URL 映射（美境生成，每张卡片独立场景）
+  // 格式：关键词片段 → 图片URL
+  const CARD_IMGS = {
+    // ── 流程自动化（14张，每张独立人物+场景）──
+    'OpenClaw 本地部署':   'imgs/51fff3eb9278781dc445d542cf584c751587597.png', // 银发男孩+服务器机房
+    '后结算 PO 下单':      'imgs/3ae0de17877b98a127ce6c80af5ca7f21416270.png', // 发髻女孩+邮件变订单
+    '营销 AI 军团':        'imgs/153280507c738f4c84b82f6b7bc4ae691614708.png', // 棕发女孩+5色机器人军团
+    '毛毛老师外置大脑':    'imgs/ccb86218090d8d699a1fbc21f72aa0961635836.png', // 银发老师+神经网络技能卡
+    'AI-Team':             'imgs/d78c6f7084cfaacb98c8d7040e633ae21518114.png', // 黑马尾女孩+5个AI小人
+    '公司内部AI个人助理':  'imgs/788997a098f5e8643e752e1560bb692d1501323.png', // 圆眼镜卷发男孩+麦克风
+    '会议纪要 + 需求':     'imgs/7326a8fae7f21a56fa7a682031cc74dc1519131.png', // 金发女孩+AI机器人记录（包亮亮）
+    '会议纪要':            'imgs/7326a8fae7f21a56fa7a682031cc74dc1519131.png', // 金发女孩+AI机器人记录
+    '飞书机器人全流程':    'imgs/f35db3cdc8d22a7606911be8685ce2e61578694.png', // 红发男孩+飞书机器人
+    'AI自动化发送Social':  'imgs/6ab888fe0b653f3a170e21f4e4fe65071286588.png', // 双马尾粉衣女孩+纸飞机邮件
+    '飞书OpenClaw个人项目': 'imgs/bbf70d68a4400e5d8e1f31a2811d119c1534123.png', // 长发青色西装女孩+看板
+    'AI结算辅助':          'imgs/0276c44f6a252be0a7e012f46b518cc01553669.png', // 整洁男孩+机器人填表
+    '黑钻校园创作者':      'imgs/0374f74ee5f4b392726f9a26ef16c7341599106.png', // 高马尾校服女孩+社媒卡片
+    '个人工作台':          'imgs/b48caffee688b1bf13ef47defe33fae31418213.png', // 削发男孩+跨平台工作流
+    '审稿工具':            'imgs/4fc26400bf2bed571f35b1d7b05dd9921480141.png', // 短卷发薄荷绿女孩+审稿
+    // ── 内容生产（10张，每张独立人物+场景）──
+    'CatDesk + Brief':     'imgs/content_01.png', // 橙衣短发女孩+内容卡片
+    'AI 生成 5 分钟':      'imgs/content_02.png', // 卷发眼镜男孩+阅读平板
+    '爆款视频拆解':        'imgs/content_03.png', // 红夹克马尾女孩+视频屏幕
+    '旅行攻略网页生成':    'imgs/content_04.png', // 背包男孩+世界地图网页
+    '月度营销热点日历':    'imgs/content_05.png', // 双丸子黄裙女孩+全息日历
+    '乐生活养生节':        'imgs/content_06.png', // 绿衣长发女孩+草本品类图
+    '红美计划':            'imgs/content_07.png', // 粉西装短发女孩+方案文档
+    'Tabbit 4 个':         'imgs/content_08.png', // 蓝帽衫男孩+4个机器人
+    '热梗营销情报官':      'imgs/content_09.png', // 紫衣耳机女孩+热梗气泡
+    '项目复盘':            'imgs/content_10.png', // 灰毛衣男孩+复盘卡片
+    // ── 原学城截图（其他分类保留）──
+    '打工皇帝吃饭':        'https://km.sankuai.com/api/file/cdn/2751776938/228456467201?contentType=1',
+    '消费医疗':            'https://km.sankuai.com/api/file/cdn/2751776938/231323739233?contentType=1&isNewContent=false',
+    'Levi助手':            'https://km.sankuai.com/api/file/cdn/2751776938/228458494425?contentType=1&isNewContent=false',
+    '智能媒介PR':          'https://km.sankuai.com/api/file/cdn/2751776938/228465057050?contentType=1&isNewContent=false',
+    '懒人机票':            'https://km.sankuai.com/api/file/cdn/2751776938/228457557467?contentType=1&isNewContent=false',
+    '飞书Wiki多维表格':     'https://km.sankuai.com/api/file/cdn/2751776938/228457566960?contentType=1&isNewContent=false',
+    // CatDesk + Brief 已移至 AI 插画区域
+    '飞书机器人全流程':    'https://km.sankuai.com/api/file/cdn/2751776938/228467861998?contentType=1&isNewContent=false',
+    'AI处理十万级':        'https://km.sankuai.com/api/file/cdn/2751776938/228459796234?contentType=1&isNewContent=false',
+    '飞书OpenClaw达人稿件批量': 'https://km.sankuai.com/api/file/cdn/2751776938/229354476158?contentType=1&isNewContent=false',
+    'Tabbit AI浏览器':     'https://km.sankuai.com/api/file/cdn/2751776938/229353203884?contentType=1&isNewContent=false',
+    'DeepSeek小红书数据':  'https://km.sankuai.com/api/file/cdn/2751776938/229363165151?contentType=1&isNewContent=false',
+    '小红书专辑笔记批量':  'https://km.sankuai.com/api/file/cdn/2751776938/229363327832?contentType=1&isNewContent=false',
+    'AI自动化发送Social':  'https://km.sankuai.com/api/file/cdn/2751776938/229359146796?contentType=1&isNewContent=false',
+    'CatDesk投放数据':     'https://km.sankuai.com/api/file/cdn/2751776938/229359478792?contentType=1&isNewContent=false',
+    '飞书OpenClaw竞品情报': 'https://km.sankuai.com/api/file/cdn/2751776938/230104651925?contentType=1&isNewContent=false',
+    '投放日报自动推送':    'https://km.sankuai.com/api/file/cdn/2751776938/230102130409?contentType=1&isNewContent=false',
+    '审稿工具':            'https://km.sankuai.com/api/file/cdn/2751776938/230102992999?contentType=1&isNewContent=false',
+    '飞书OpenClaw个人项目': 'https://km.sankuai.com/api/file/cdn/2751776938/230104375133?contentType=1&isNewContent=false',
+    'AI智能匹配代理商':    'https://km.sankuai.com/api/file/cdn/2751776938/230101353358?contentType=1&isNewContent=false',
+    'Tabbit一键生成月度':  'https://km.sankuai.com/api/file/cdn/2751776938/230104540135?contentType=1&isNewContent=false',
+    '飞书OpenClaw爆文复盘': 'https://km.sankuai.com/api/file/cdn/2751776938/230107429209?contentType=1&isNewContent=false',
+    '飞书OpenClaw达人视频脚本': 'https://km.sankuai.com/api/file/cdn/2751776938/230103753599?contentType=1&isNewContent=false',
+    'CatClaw内容评级':     'https://km.sankuai.com/api/file/cdn/2751776938/230104071604?contentType=1&isNewContent=false',
+    '飞书OpenClaw爆款内容拆解': 'https://km.sankuai.com/api/file/cdn/2751776938/230102803067?contentType=1&isNewContent=false',
+    '供应商能力概览':      'https://km.sankuai.com/api/file/cdn/2751776938/230101906968?contentType=1&isNewContent=false',
+    '整合营销多渠道':      'https://km.sankuai.com/api/file/cdn/2751776938/230112063233?contentType=1&isNewContent=false',
+    '营销AI军团':          'https://km.sankuai.com/api/file/cdn/2751776938/230111272785?contentType=1&isNewContent=false',
+    '每日4项定时监测':     'https://km.sankuai.com/api/file/cdn/2751776938/230113351806?contentType=1&isNewContent=false',
+    'Tabbit批量检测笔记':  'https://km.sankuai.com/api/file/cdn/2751776938/230112879496?contentType=1&isNewContent=false',
+    '李荣浩话风':          'https://km.sankuai.com/api/file/cdn/2751776938/230110084231?contentType=1&isNewContent=false',
+    'AI结算辅助':          'https://km.sankuai.com/api/file/cdn/2751776938/231004999659?contentType=1&isNewContent=false',
+    '淘宝闪购抖音原生':    'https://km.sankuai.com/api/file/cdn/2751776938/230997134014?contentType=1&isNewContent=false',
+    'AIShift':             'https://km.sankuai.com/api/file/cdn/2751776938/230998251120?contentType=1&isNewContent=false',
+    'BF硬性要求批量':      'https://km.sankuai.com/api/file/cdn/2751776938/231000008202?contentType=1&isNewContent=false',
+    '每日数据填写情况':    'https://km.sankuai.com/api/file/cdn/2751776938/230999049051?contentType=1&isNewContent=false',
+    '毛毛老师外置大脑':    'https://km.sankuai.com/api/file/cdn/2751776938/231005491299?contentType=1&isNewContent=false',
+    'AI工厂':              'https://km.sankuai.com/api/file/cdn/2751776938/230997298377?contentType=1&isNewContent=false',
+    '矩阵账号评估':        'https://km.sankuai.com/api/file/cdn/2751776938/231004380389?contentType=1&isNewContent=false',
+    '乐生活养生节':        'https://km.sankuai.com/api/file/cdn/2751776938/231000356725?contentType=1&isNewContent=false',
+    '黑钻校园创作者':      'https://km.sankuai.com/api/file/cdn/2751776938/231009896986?contentType=1&isNewContent=false',
+    '红美计划商家代投':    'https://km.sankuai.com/api/file/cdn/2751776938/231000372651?contentType=1&isNewContent=false',
+    'Tabbit 4 个自建':     'https://km.sankuai.com/api/file/cdn/2751776938/231334703011?contentType=1&isNewContent=false',
+    'AI 聊天室':           'https://km.sankuai.com/api/file/cdn/2751776938/231333348211?contentType=1&isNewContent=false',
+    '三医项目多平台':      'https://km.sankuai.com/api/file/cdn/2751776938/231335795956?contentType=1&isNewContent=false',
+    '乐生活中小发踏青':    'https://km.sankuai.com/api/file/cdn/2751776938/231333711716?contentType=1&isNewContent=false',
+    '全自动热梗营销':      'https://km.sankuai.com/api/file/cdn/2751776938/231337494800?contentType=1&isNewContent=false',
+    '个人工作台':          'https://km.sankuai.com/api/file/cdn/2751776938/231337276594?contentType=1&isNewContent=false',
+    'AI-Team':             'https://km.sankuai.com/api/file/cdn/2751776938/231337704998?contentType=1&isNewContent=false',
+    '发布节奏总表':        'https://km.sankuai.com/api/file/cdn/2751776938/231337945429?contentType=1&isNewContent=false',
+    '乐生活龙抬头':        'https://km.sankuai.com/api/file/cdn/2751776938/231337755612?contentType=1&isNewContent=false',
+    '项目复盘/案例拆解':   'https://km.sankuai.com/api/file/cdn/2751776938/231338723806?contentType=1&isNewContent=false',
+    'Kimi 批量筛选':       'https://km.sankuai.com/api/file/cdn/2751776938/231340373990?contentType=1&isNewContent=false',
+    '搜推 QV':             'https://km.sankuai.com/api/file/cdn/2751776938/231339333369?contentType=1&isNewContent=false',
+    'PUA 鞭子':            'https://km.sankuai.com/api/file/cdn/2751776938/231334266360?contentType=1&isNewContent=false',
+    // '后结算 PO' 暂无专属截图，走纯色兜底
+    // 'OpenClaw 本地部署' 暂无专属截图，走纯色兜底
+    '用 Agent 自动分析小红书': 'https://km.sankuai.com/api/file/cdn/2751776938/229363327832?contentType=1&isNewContent=false',
+    'Vibe Coding':         'https://km.sankuai.com/api/file/cdn/2751776938/230998251120?contentType=1&isNewContent=false',
+    'AI 生成 5 分钟':      'https://km.sankuai.com/api/file/cdn/2751776938/228466834320?contentType=1&isNewContent=false',
+    '爆款视频拆解':        'https://km.sankuai.com/api/file/cdn/2751776938/230107429209?contentType=1&isNewContent=false',
+    '会议纪要':            'https://km.sankuai.com/api/file/cdn/2751776938/228467861998?contentType=1&isNewContent=false',
+    '公司内部AI':          'https://km.sankuai.com/api/file/cdn/2751776938/228467861998?contentType=1&isNewContent=false',
+  };
+
+// ── 匹配：从标题中找到对应的截图URL
+// 规则：按 key 长度从长到短排序，优先匹配更精确的长 key，避免短 key 抢先串图
+function findImgUrl(rawTitle) {
+const titleClean = rawTitle.replace(/\s/g, '');
+// 按 key 长度降序排列，长 key 优先匹配
+const sortedEntries = Object.entries(CARD_IMGS).sort((a, b) => b[0].length - a[0].length);
+// 第一轮：标题直接包含 key（去空格后比较，长 key 优先）
+for (const [key, url] of sortedEntries) {
+const keyClean = key.replace(/\s/g, '');
+if (titleClean.includes(keyClean)) return url;
+}
+// 第二轮：key 包含标题前5个非空字（key 是标题的超集，说明 key 更长但标题是其缩写）
+const titleShort = titleClean.substring(0, 5);
+if (titleShort.length >= 4) {
+for (const [key, url] of sortedEntries) {
+const keyClean = key.replace(/\s/g, '');
+if (keyClean.startsWith(titleShort)) return url;
+}
+}
+return null;
+  }
+
+  // ── 分类标签文字
+  const CAT_LABELS = {
+    auto: '流程自动化', content: '内容生产', data: '数据分析',
+    review: '内容审核', kol: '达人管理', monitor: '日报监测',
+    vendor: '供应商管理', life: '生活创意',
+  };
+
+  // 生成单张封面 HTML（YouTube缩略图风格：真实截图背景 + 渐变遮罩 + 文字叠加）
+  function buildCover(card, cardIndex) {
+    const cat = card.dataset.cat || 'auto';
+    const accentColor = CAT_COLORS[cat] || CAT_COLORS.auto;
+    const isAward = card.classList.contains('is-award');
+
+    const titleEl = card.querySelector('.card-title');
+    const rawTitle = titleEl ? titleEl.textContent.trim() : '';
+
+    // 查找截图URL
+    const imgUrl = findImgUrl(rawTitle);
+
+    // 分类标签
+    const catLabel = CAT_LABELS[cat] || 'AI应用';
+
+    // ── AI插画背景：优先用卡片专属图，无匹配时回退分类兜底图
+    const catBgImg = CAT_BG_IMGS[cat] || CAT_BG_IMGS.auto;
+    const finalBgImg = imgUrl || catBgImg;
+    // 标题截断：最多14字
+    const displayTitle = rawTitle.length > 14 ? rawTitle.substring(0, 13) + '…' : rawTitle;
+
+    // 首屏卡片（前8张）eager+high priority，其余 lazy
+    const isAboveFold = cardIndex < 8;
+    const loadingAttr = isAboveFold ? 'eager' : 'lazy';
+    const priorityAttr = isAboveFold ? 'fetchpriority="high"' : 'fetchpriority="low"';
+
+    const div = document.createElement('div');
+    div.className = 'card-cover';
+    div.innerHTML = `
+      <div style="
+        width:100%;height:148px;border-radius:10px;overflow:hidden;
+        margin-bottom:12px;position:relative;flex-shrink:0;
+        background:#0d0d1a;
+        transition:transform .35s ease;
+        cursor:pointer;
+      ">
+        <!-- AI插画背景：卡片专属图优先，无匹配则用分类兜底 -->
+        <img src="${finalBgImg}" alt="" style="
+          position:absolute;inset:0;width:100%;height:100%;
+          object-fit:cover;object-position:center center;
+          display:block;
+        " loading="${loadingAttr}" ${priorityAttr}
+        onerror="this.onerror=null;this.src='${catBgImg}';"/>
+        <!-- 底部渐变遮罩（保证文字可读） -->
+        <div style="
+          position:absolute;inset:0;
+          background:linear-gradient(
+            to bottom,
+            rgba(0,0,0,0.0) 0%,
+            rgba(0,0,0,0.08) 35%,
+            rgba(0,0,0,0.55) 62%,
+            rgba(0,0,0,0.88) 100%
+          );
+        "></div>
+        <!-- 顶部色条 -->
+        <div style="position:absolute;top:0;left:0;right:0;height:3px;background:${accentColor}"></div>
+        <!-- 左上角分类标签 -->
+        <div style="position:absolute;top:9px;left:10px">
+          <span style="
+            font-size:9px;font-weight:700;letter-spacing:.5px;
+            padding:2px 8px;border-radius:4px;
+            background:${accentColor}dd;color:#fff;
+            backdrop-filter:blur(6px);
+            box-shadow:0 1px 6px rgba(0,0,0,0.35);
+          ">${catLabel}</span>
+        </div>
+        ${isAward ? `
+        <!-- 获奖角标 -->
+        <div style="position:absolute;top:9px;right:10px">
+          <span style="
+            font-size:9px;font-weight:700;letter-spacing:.4px;
+            padding:2px 8px;border-radius:4px;
+            background:rgba(251,191,36,0.92);color:#1c1407;
+            box-shadow:0 1px 6px rgba(0,0,0,0.3);
+          ">🏆 AWARD</span>
+        </div>` : ''}
+        <!-- 底部标题大字 -->
+        <div style="
+          position:absolute;bottom:0;left:0;right:0;
+          padding:0 12px 12px;
+        ">
+          <div style="
+            font-size:15px;font-weight:800;
+            color:#fff;line-height:1.3;
+            letter-spacing:-.2px;
+            text-shadow:0 1px 8px rgba(0,0,0,0.9), 0 0 20px rgba(0,0,0,0.6);
+            font-family:-apple-system,'PingFang SC',sans-serif;
+          ">${displayTitle}</div>
+        </div>
+      </div>
+    `;
+
+    // hover 缩放
+    const inner = div.firstElementChild;
+    card.addEventListener('mouseenter', () => { inner.style.transform = 'scale(1.03)'; });
+    card.addEventListener('mouseleave', () => { inner.style.transform = 'scale(1)'; });
+
+    return div;
+  }
+
+  // 为每张卡片插入封面（传入 index 用于首屏优先级判断）
+  document.querySelectorAll('.card').forEach((card, idx) => {
+    if (card.querySelector('.card-cover')) return;
+    const cover = buildCover(card, idx);
+    const badge = card.querySelector('.award-badge');
+    if (badge) {
+      badge.after(cover);
+    } else {
+      card.insertBefore(cover, card.firstChild);
+    }
+  });
+
+})();
+</script>
+</body>
+</html>
